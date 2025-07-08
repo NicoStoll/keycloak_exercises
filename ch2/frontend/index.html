@@ -2,71 +2,83 @@
 <html>
 <head>
     <title>Keycloak Example Application</title>
-    <script type="text/javascript" src="KC_URL/js/keycloak.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/keycloak-js@latest/dist/keycloak.min.js"></script>
     <script type="text/javascript">
+        // Initialize Keycloak with dynamic KC_URL
+        var kc = new Keycloak({
+            url: 'KC_URL', // Replaced at runtime by your server
+            realm: 'myrealm',
+            clientId: 'myclient'
+        });
+
+        window.onload = function() {
+            kc.init({
+                onLoad: 'login-required',
+                checkLoginIframe: false,
+                checkThirdPartyCookies: false,
+                pkceMethod: 'S256'
+            }).then(authenticated => {
+                if (authenticated) {
+                    profile();
+                } else {
+                    document.getElementById('anonymous').style.display = 'block';
+                }
+            }).catch(err => {
+                console.error('Keycloak init failed', err);
+            });
+        };
+
         function output(content) {
             if (typeof content === 'object') {
-                content = JSON.stringify(content, null, 2)
+                content = JSON.stringify(content, null, 2);
             }
             document.getElementById('output').textContent = content;
         }
 
         function profile() {
-            if (kc.idTokenParsed.name) {
-                document.getElementById('name').textContent = 'Hello ' + kc.idTokenParsed.name;
-            } else {
-                document.getElementById('name').textContent = 'Hello ' + kc.idTokenParsed.preferred_username;
+            const parsed = kc.idTokenParsed;
+            const name = parsed.name || parsed.preferred_username;
+            document.getElementById('name').textContent = 'Hello ' + name;
+
+            if (parsed.picture) {
+                document.getElementById('picture').src = parsed.picture;
             }
-            if (kc.idTokenParsed.picture) {
-                document.getElementById('picture').src = kc.idTokenParsed.picture;
-            }
+
             document.getElementById('user').style.display = 'block';
+            document.getElementById('anonymous').style.display = 'none';
         }
 
         function sendRequest() {
-            var req = new XMLHttpRequest();
-            req.onreadystatechange = function() {
+            const req = new XMLHttpRequest();
+            req.onreadystatechange = function () {
                 if (req.readyState === 4) {
                     output(req.status + '\n\n' + req.responseText);
                 }
-            }
-            req.open('GET', 'SERVICE_URL', true);
+            };
+            req.open('GET', 'SERVICE_URL', true); // Replaced at runtime by your server
             req.setRequestHeader('Authorization', 'Bearer ' + kc.token);
             req.send();
-        }
-
-        var kc = new Keycloak({ realm: 'myrealm', clientId: 'myclient' });
-        window.onload = function() {
-            kc.init({'messageReceiveTimeout': 100000}).then(function() {
-                if(kc.authenticated) {
-                    profile();
-                } else {
-                    document.getElementById('anonymous').style.display = 'block';
-                }
-            });
         }
     </script>
 </head>
 <body>
 
 <div id="anonymous" style="display: none">
-    <button onclick="window.kc.login()">Login</button>
+    <button onclick="kc.login()">Login</button>
 </div>
 
 <div id="user" style="display: none">
-    <button onclick="window.kc.logout()">Logout</button>
+    <button onclick="kc.logout()">Logout</button>
     <button onclick="output(kc.idTokenParsed)">Show ID Token</button>
     <button onclick="output(kc.tokenParsed)">Show Access Token</button>
-    <button onclick="window.kc.updateToken(-1).then(function() { output(kc.idTokenParsed); profile() })">Refresh</button>
+    <button onclick="kc.updateToken(-1).then(function () { output(kc.idTokenParsed); profile(); })">Refresh</button>
     <button onclick="sendRequest()">Invoke Service</button>
     <hr/>
     <h2 id="name"></h2>
-    <img id="picture" width="50px" height="50px"/>
+    <img id="picture" width="50" height="50" alt="User Picture"/>
     <hr/>
     <pre id="output"></pre>
 </div>
-
-
 
 </body>
 </html>
