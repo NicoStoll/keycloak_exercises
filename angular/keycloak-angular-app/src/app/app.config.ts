@@ -3,6 +3,7 @@ import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
 import { AutoRefreshTokenService, provideKeycloak, UserActivityService, withAutoRefreshToken } from 'keycloak-angular';
+import { environment } from '../environments/environment.development';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -11,9 +12,9 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideKeycloak({
       config: {
-        url: 'http://localhost:8080',
-        realm: 'myrealm',
-        clientId: 'myclient'
+        url: environment.keycloak.authority,
+        realm: environment.keycloak.realm,
+        clientId: environment.keycloak.clientId
       },
       initOptions: {
         onLoad: 'login-required',
