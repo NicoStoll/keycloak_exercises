@@ -1,0 +1,59 @@
+# Admin user
+dn: cn=admin,dc=example,dc=org
+changetype: add
+objectClass: simpleSecurityObject
+objectClass: organizationalRole
+cn: admin
+userPassword: adminpassword
+description: LDAP Administrator
+
+# Organizational unit: IT
+dn: ou=IT,dc=example,dc=org
+changetype: add
+objectClass: organizationalUnit
+ou: IT
+
+# User: John Doe (IT)
+dn: uid=johndoe,ou=IT,dc=example,dc=org
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: John Doe
+sn: Doe
+uid: johndoe
+mail: johndoe@example.org
+userPassword: password123
+
+# User: Anna Meier (IT)
+dn: uid=anna.meier,ou=IT,dc=example,dc=org
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Anna Meier
+sn: Meier
+uid: anna.meier
+mail: anna.meier@example.org
+userPassword: password456
+
+# Organizational unit: Marketing
+dn: ou=Marketing,dc=example,dc=org
+changetype: add
+objectClass: organizationalUnit
+ou: Marketing
+
+# User: Peter Schmidt (Marketing)
+dn: uid=peter.schmidt,ou=Marketing,dc=example,dc=org
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Peter Schmidt
+sn: Schmidt
+uid: peter.schmidt
+mail: peter.schmidt@example.org
+userPassword: password789
